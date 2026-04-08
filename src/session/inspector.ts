@@ -134,8 +134,8 @@ function getArgsFromProcessTree(): string[] | null {
       const lines = output.trim().split('\n').filter(l => l.includes('claude'));
       if (lines.length > 0) {
         const parts = lines[0].split(',');
-        if (parts.length >= 2) {
-          const cmdLine = parts.slice(1, -1).join(',').trim();
+        if (parts.length >= 3) {
+          const cmdLine = parts.slice(2).join(',').trim();
           const args = cmdLine.split(/\s+/).slice(1);
           return args;
         }
