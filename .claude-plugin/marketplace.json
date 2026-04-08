@@ -1,0 +1,39 @@
+{
+  "name": "claude-schedule-session-resume",
+  "owner": {
+    "name": "Jerrett Davis",
+    "email": "jerrettdavis@users.noreply.github.com"
+  },
+  "metadata": {
+    "description": "Schedule resumption of a Claude Code session at a future time",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "resume-at",
+      "source": "./",
+      "description": "Schedule this session to resume at a future time — supports duration (2h30m), time of day (5pm, 17:00), and ISO datetime formats",
+      "version": "1.0.0",
+      "author": {
+        "name": "Jerrett Davis"
+      },
+      "homepage": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
+      "repository": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
+      "license": "MIT",
+      "keywords": [
+        "schedule",
+        "resume",
+        "session",
+        "timer"
+      ],
+      "category": "developer-tools",
+      "tags": [
+        "schedule",
+        "resume",
+        "session",
+        "timer",
+        "productivity"
+      ]
+    }
+  ]
+}

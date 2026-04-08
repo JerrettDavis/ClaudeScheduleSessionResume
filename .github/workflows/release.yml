@@ -2,11 +2,12 @@ name: Release
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [main]
 
 permissions:
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   release:
@@ -15,6 +16,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -31,23 +34,7 @@ jobs:
       - name: Test
         run: npm test
 
-      - name: Package
-        run: npm pack
-
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: claude-schedule-session-resume-${{ github.ref_name }}
-          path: '*.tgz'
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: '*.tgz'
-          generate_release_notes: true
-
-      # Uncomment when npm token is configured:
-      # - name: Publish to npm
-      #   run: npm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
