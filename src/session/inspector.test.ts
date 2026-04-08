@@ -29,9 +29,10 @@ describe('encodeCwd', () => {
 
 describe('resolveSessionId', () => {
   let tmpDir: string;
-  const originalEnv = process.env.CLAUDE_SESSION_ID;
+  let originalEnv: string | undefined;
 
   beforeEach(() => {
+    originalEnv = process.env.CLAUDE_SESSION_ID;
     tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'resume-at-test-'));
     delete process.env.CLAUDE_SESSION_ID;
   });
@@ -68,8 +69,31 @@ describe('readPermissionMode', () => {
   });
 
   it('returns default when JSONL file does not exist', () => {
-    const result = readPermissionMode('nonexistent-id', tmpDir);
+    // Pass a unique fake cwd that won't exist in ~/.claude/projects/
+    const fakeCwd = path.join(tmpDir, 'nonexistent-cwd-that-will-not-exist-in-real-dir');
+    const result = readPermissionMode('nonexistent-id', fakeCwd);
     expect(result).toBe('default');
+  });
+
+  it('reads permissionMode from JSONL first line', () => {
+    // Create the directory structure that readPermissionMode will look in
+    // We need to create a fake ~/.claude/projects/<encoded-cwd>/<sessionId>.jsonl
+    // Use a unique session ID and cwd to avoid collision
+    const uniqueId = `test-${Date.now()}`;
+    const fakeCwd = `/test-resume-at-${uniqueId}`;
+    const encoded = encodeCwd(fakeCwd);
+    const projectDir = path.join(os.homedir(), '.claude', 'projects', encoded);
+    const jsonlPath = path.join(projectDir, `${uniqueId}.jsonl`);
+
+    fs.mkdirSync(projectDir, { recursive: true });
+    fs.writeFileSync(jsonlPath, JSON.stringify({ type: 'permission-mode', permissionMode: 'bypassPermissions', sessionId: uniqueId }) + '\n');
+
+    try {
+      const result = readPermissionMode(uniqueId, fakeCwd);
+      expect(result).toBe('bypassPermissions');
+    } finally {
+      fs.rmSync(projectDir, { recursive: true, force: true });
+    }
   });
 });
 
