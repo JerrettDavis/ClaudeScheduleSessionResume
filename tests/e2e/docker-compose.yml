@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  e2e:
+    build:
+      context: ../../
+      dockerfile: tests/e2e/Dockerfile
+    environment:
+      - CLAUDE_CODE_FAKE=1
+      - HOME=/tmp/fakehome
+    volumes:
+      - ../../:/plugin:ro
+    tmpfs:
+      - /tmp/fakehome
