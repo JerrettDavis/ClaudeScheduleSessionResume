@@ -12,7 +12,14 @@
     "url": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume.git"
   },
   "homepage": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
-  "keywords": ["claude", "schedule", "resume", "session", "timer", "plugin"],
+  "keywords": [
+    "claude",
+    "schedule",
+    "resume",
+    "session",
+    "timer",
+    "plugin"
+  ],
   "main": "bin/resume-at-cli.js",
   "scripts": {
     "build": "tsc -p tsconfig.json",
