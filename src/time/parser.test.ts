@@ -24,6 +24,10 @@ describe('parseTime', () => {
     it('rejects invalid ISO date', () => {
       expect(() => parseTime('2026-13-07T21:00:00', now)).toThrow('Invalid time format');
     });
+
+    it('throws on past ISO datetime', () => {
+      expect(() => parseTime('2020-01-01T00:00:00', now)).toThrow('is in the past');
+    });
   });
 
   describe('Duration', () => {
@@ -58,6 +62,12 @@ describe('parseTime', () => {
       const result = parseTime('1h15m30s', now);
       expect(result.targetDate.getHours()).toBe(15);
       expect(result.targetDate.getMinutes()).toBe(15);
+    });
+
+    it('includes seconds in label when combined with hours', () => {
+      const result = parseTime('1h30s', now);
+      expect(result.humanLabel).toContain('1h');
+      expect(result.humanLabel).toContain('30s');
     });
 
     it('rejects zero duration', () => {
