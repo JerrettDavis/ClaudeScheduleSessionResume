@@ -61,12 +61,12 @@ async function handleCancel(): Promise<void> {
       console.log(`No pending schedule found for session ${session.sessionId}`);
     }
   } catch (err) {
-    console.error(`Error cancelling schedule: ${(err as Error).message}`);
+    console.error(`Error cancelling schedule: ${err instanceof Error ? err.message : String(err)}`);
     process.exit(1);
   }
 }
 
-async function handleList(): Promise<void> {
+function handleList(): void {
   const schedules = listPending();
   console.log(formatScheduleTable(schedules));
 }
@@ -76,10 +76,6 @@ async function handleSchedule(timeStr: string, prompt?: string): Promise<void> {
     const parsed = parseTime(timeStr);
     const session = await inspectSession();
     const args = buildResumeArgs(session.sessionId, session.originalArgs);
-
-    if (prompt) {
-      args.push(prompt);
-    }
 
     const pending: PendingSchedule = {
       sessionId: session.sessionId,
@@ -112,12 +108,12 @@ async function handleSchedule(timeStr: string, prompt?: string): Promise<void> {
         registerOsTask(pending);
         console.log('  OS scheduled task created as backup.');
       } catch (err) {
-        console.error(`  Warning: OS fallback also failed: ${(err as Error).message}`);
+        console.error(`  Warning: OS fallback also failed: ${err instanceof Error ? err.message : String(err)}`);
         console.error('  The resume may not fire. Try closing and re-running the plugin.');
       }
     }
   } catch (err) {
-    console.error((err as Error).message);
+    console.error(err instanceof Error ? err.message : String(err));
     process.exit(1);
   }
 }
