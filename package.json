@@ -1,0 +1,49 @@
+{
+  "name": "claude-schedule-session-resume",
+  "version": "1.0.0",
+  "description": "Claude Code plugin that schedules resumption of the current session at a future time",
+  "author": {
+    "name": "Jerrett Davis",
+    "url": "https://github.com/JerrettDavis"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume.git"
+  },
+  "homepage": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
+  "keywords": ["claude", "schedule", "resume", "session", "timer", "plugin"],
+  "main": "bin/resume-at-cli.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsc -p tsconfig.json --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "docker compose -f tests/e2e/docker-compose.yml up --build --abort-on-container-exit",
+    "lint": "eslint src/ --ext .ts",
+    "lint:fix": "eslint src/ --ext .ts --fix",
+    "clean": "rm -rf bin",
+    "prepublishOnly": "npm run clean && npm run build && npm test",
+    "postinstall": "node scripts/postinstall.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  },
+  "files": [
+    "bin/",
+    ".claude-plugin/",
+    "commands/",
+    "hooks/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ]
+}
