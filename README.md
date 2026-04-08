@@ -4,16 +4,29 @@ A Claude Code plugin that schedules resumption of the current session at a futur
 
 ## Installation
 
-```bash
-claude plugin add /path/to/claude-schedule-session-resume
+### From the Marketplace (recommended)
+
+Inside a Claude Code session:
+
+```
+/plugin marketplace add JerrettDavis/ClaudeScheduleSessionResume
+/plugin install resume-at@claude-schedule-session-resume
 ```
 
-Or install from GitHub:
+Or from the CLI:
+
+```bash
+claude plugin marketplace add JerrettDavis/ClaudeScheduleSessionResume
+claude plugin install resume-at@claude-schedule-session-resume
+```
+
+### From source
 
 ```bash
 git clone https://github.com/JerrettDavis/ClaudeScheduleSessionResume.git
 cd ClaudeScheduleSessionResume
 npm install
+npm run build
 claude plugin add .
 ```
 
