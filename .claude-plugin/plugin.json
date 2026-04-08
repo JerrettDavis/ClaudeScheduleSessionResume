@@ -1,10 +1,9 @@
 {
-  "name": "claude-schedule-session-resume",
+  "name": "resume-at",
   "version": "1.0.0",
-  "description": "Schedule resumption of a Claude Code session at a future time",
-  "author": { "name": "Jerrett Davis", "url": "https://github.com/JerrettDavis" },
-  "homepage": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
-  "repository": "https://github.com/JerrettDavis/ClaudeScheduleSessionResume",
-  "license": "MIT",
-  "keywords": ["schedule", "resume", "session", "timer"]
+  "description": "Schedule this session to resume at a future time",
+  "author": {
+    "name": "Jerrett Davis",
+    "email": "mxjerrett@gmail.com"
+  }
 }
