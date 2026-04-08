@@ -21,7 +21,7 @@ function formatDuration(ms: number): string {
   const parts: string[] = [];
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0) parts.push(`${minutes}m`);
-  if (seconds > 0 && hours === 0) parts.push(`${seconds}s`);
+  if (seconds > 0) parts.push(`${seconds}s`);
   return parts.join(' ') || '0s';
 }
 
@@ -32,12 +32,19 @@ function advanceToNextDayIfPast(date: Date, now: Date): Date {
   return date;
 }
 
-function tryParseISO(input: string, _now: Date): ParsedTime | null {
+function tryParseISO(input: string, now: Date): ParsedTime | null {
   const isoPattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/;
   if (!isoPattern.test(input)) return null;
 
   const date = new Date(input);
   if (isNaN(date.getTime())) return null;
+
+  // ISO datetimes are absolute — reject if already in the past
+  if (date.getTime() <= now.getTime()) {
+    throw new Error(
+      `Invalid time format: "${input}" is in the past. Use a future datetime.`
+    );
+  }
 
   const formatted = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${formatTime12h(date)}`;
   return {
