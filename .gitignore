@@ -1,0 +1,27 @@
+# Compiled output
+bin/
+bin-test/
+
+# Dependencies
+node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Test artifacts
+coverage/
+*.log
+
+# npm
+*.tgz
