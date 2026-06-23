@@ -165,10 +165,11 @@ export async function cancelResume(sessionId: string): Promise<boolean> {
   // Try to remove OS scheduled task (best-effort)
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { execSync } = require('child_process');
+    const { execFileSync } = require('child_process');
     const id8 = sessionId.substring(0, 8);
     if (process.platform === 'win32') {
-      execSync(`schtasks /delete /TN "ClaudeResume-${id8}" /F`, {
+      // Use execFileSync with argument array — bypasses cmd.exe so no shell injection is possible.
+      execFileSync('schtasks', ['/delete', '/TN', `ClaudeResume-${id8}`, '/F'], {
         stdio: 'pipe',
         timeout: 5000,
       });
