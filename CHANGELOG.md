@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/compare/v1.0.0...v1.0.1) (2026-06-23)
+
+
+### Bug Fixes
+
+* **security:** remediate 14 CodeQL findings across 6 files ([#14](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/issues/14)) ([4d613c8](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/commit/4d613c8cbf046a1b4b9bac53fcf6748d74eb34b6))
+
 # 1.0.0 (2026-04-08)
 
 

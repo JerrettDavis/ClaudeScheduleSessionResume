@@ -1,6 +1,6 @@
 {
   "name": "claude-schedule-session-resume",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Claude Code plugin that schedules resumption of the current session at a future time",
   "author": {
     "name": "Jerrett Davis",
