@@ -89,11 +89,6 @@ function main(): void {
     const outputDir = path.join(os.homedir(), '.claude', 'session-env', sessionId);
     const outputPath = path.join(outputDir, 'invocation.json');
 
-    // Don't overwrite if already captured this session
-    if (fs.existsSync(outputPath)) {
-      process.exit(0);
-    }
-
     const captured = captureFromProcessTree();
 
     const invocation: CapturedInvocation = {
@@ -104,7 +99,11 @@ function main(): void {
     };
 
     fs.mkdirSync(outputDir, { recursive: true });
-    fs.writeFileSync(outputPath, JSON.stringify(invocation, null, 2), 'utf-8');
+    // Use 'wx' (exclusive create) to atomically check-and-write in one syscall,
+    // eliminating the TOCTOU race between existsSync and writeFileSync.
+    // If the file already exists, EEXIST is thrown and caught below — identical
+    // to the previous "exit 0 if already captured" logic.
+    fs.writeFileSync(outputPath, JSON.stringify(invocation, null, 2), { encoding: 'utf-8', flag: 'wx' });
   } catch {
     // Hook errors must never block session start
   }

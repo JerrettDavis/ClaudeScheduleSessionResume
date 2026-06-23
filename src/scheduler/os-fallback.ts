@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { PendingSchedule } from './scheduler';
 
 function escapePwsh(value: string): string {
@@ -6,7 +6,14 @@ function escapePwsh(value: string): string {
 }
 
 function escapeShellArg(value: string): string {
-  return value.replace(/"/g, '\\"');
+  // Escape all characters that are special inside a POSIX double-quoted string.
+  // Backslash must come first to avoid double-escaping.
+  return value
+    .replace(/\\/g, '\\\\')   // \ → \\
+    .replace(/"/g, '\\"')      // " → \"
+    .replace(/\$/g, '\\$')     // $ → \$ (prevent variable expansion)
+    .replace(/`/g, '\\`')      // ` → \` (prevent command substitution)
+    .replace(/!/g, '\\!');     // ! → \! (prevent history expansion)
 }
 
 function formatTimeForSchtasks(targetMs: number): string {
@@ -36,32 +43,50 @@ function formatForAt(targetMs: number): string {
 
 export function registerOsTask(schedule: PendingSchedule): void {
   const id8 = schedule.sessionId.substring(0, 8);
-  const claudeArgs = schedule.args.join(' ');
-  const promptSuffix = schedule.prompt ? ` "${escapeShellArg(schedule.prompt)}"` : '';
-  const claudeCmd = `claude ${claudeArgs}${promptSuffix}`;
+
+  // Build the claude invocation with properly-escaped args.
+  // Each arg is handled individually to avoid any shell word-splitting.
+  const claudeArgParts = [...schedule.args];
+  if (schedule.prompt) {
+    claudeArgParts.push(schedule.prompt);
+  }
+  const claudeCmd = `claude ${claudeArgParts.map(a => `"${escapeShellArg(a)}"`).join(' ')}`;
 
   if (process.platform === 'win32') {
-    const cmdLine = `pwsh -NoExit -Command "cd '${escapePwsh(schedule.cwd)}' ; ${claudeCmd}"`;
+    // Build the PowerShell command string that will run inside the scheduled task.
+    // The cd path uses single-quote PowerShell escaping; the claude command uses
+    // double-quote POSIX escaping (PowerShell honours both).
+    const psCommand = `cd '${escapePwsh(schedule.cwd)}' ; ${claudeCmd}`;
     const hhMM = formatTimeForSchtasks(schedule.targetMs);
     const date = formatDateForSchtasks(schedule.targetMs);
 
+    // Pass each schtasks flag as a separate array element — no shell involved.
+    // execFileSync bypasses cmd.exe entirely so no shell metacharacter injection is possible.
     try {
-      execSync(
-        `schtasks /create /F /TN "ClaudeResume-${id8}" /TR "${cmdLine}" /SC ONCE /ST ${hhMM} /SD ${date}`,
-        { stdio: 'pipe', timeout: 10000 }
-      );
+      execFileSync('schtasks', [
+        '/create', '/F',
+        '/TN', `ClaudeResume-${id8}`,
+        '/TR', `pwsh -NoExit -Command "${psCommand}"`,
+        '/SC', 'ONCE',
+        '/ST', hhMM,
+        '/SD', date,
+      ], { stdio: 'pipe', timeout: 10000 });
     } catch (err) {
       throw new Error(`Failed to create Windows scheduled task: ${err instanceof Error ? err.message : String(err)}`);
     }
   } else {
     const atTime = formatForAt(schedule.targetMs);
+    // Build the shell script line that `at` will execute.
+    // escapeShellArg ensures no shell metacharacters can break out of the double-quoted string.
     const fullCmd = `cd "${escapeShellArg(schedule.cwd)}" && ${claudeCmd}`;
 
+    // Feed the command to `at` via stdin (execFileSync with input option) rather than
+    // constructing a shell pipeline, so atTime cannot be injected.
     try {
-      execSync(`echo "${fullCmd}" | at ${atTime}`, {
-        stdio: 'pipe',
+      execFileSync('at', [atTime], {
+        input: fullCmd,
+        stdio: ['pipe', 'pipe', 'pipe'],
         timeout: 10000,
-        shell: '/bin/sh',
       });
     } catch (err) {
       throw new Error(`Failed to create at job: ${err instanceof Error ? err.message : String(err)}`);
@@ -74,7 +99,8 @@ export function removeOsTask(sessionId: string): void {
 
   if (process.platform === 'win32') {
     try {
-      execSync(`schtasks /delete /TN "ClaudeResume-${id8}" /F`, {
+      // Use execFileSync with argument array to avoid shell injection.
+      execFileSync('schtasks', ['/delete', '/TN', `ClaudeResume-${id8}`, '/F'], {
         stdio: 'pipe',
         timeout: 5000,
       });

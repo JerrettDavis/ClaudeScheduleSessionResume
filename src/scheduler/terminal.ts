@@ -33,7 +33,15 @@ function launchWindows(cmd: string): void {
 }
 
 function launchMacOS(cmd: string): void {
-  const escapedCmd = cmd.replace(/"/g, '\\"');
+  // Escape all characters that are special inside an AppleScript double-quoted string:
+  // backslash first (must be first to avoid double-escaping), then double-quote.
+  // Additional AppleScript metacharacters (\n, \r, \t) are also escaped globally.
+  const escapedCmd = cmd
+    .replace(/\\/g, '\\\\')   // backslash → \\  (must be first)
+    .replace(/"/g, '\\"')      // " → \"
+    .replace(/\r/g, '\\r')     // CR
+    .replace(/\n/g, '\\n')     // LF
+    .replace(/\t/g, '\\t');    // tab
   spawn(
     'osascript',
     ['-e', `tell application "Terminal" to do script "${escapedCmd}"`],

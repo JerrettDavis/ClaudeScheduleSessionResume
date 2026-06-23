@@ -56,8 +56,10 @@ async function handleCancel(): Promise<void> {
     const cancelled = await cancelResume(session.sessionId);
 
     if (cancelled) {
+      // lgtm[js/clear-text-logging] sessionId is a non-secret Claude Code UUID, not a credential
       console.log(`Cancelled scheduled resume for session ${session.sessionId}`);
     } else {
+      // lgtm[js/clear-text-logging] sessionId is a non-secret Claude Code UUID, not a credential
       console.log(`No pending schedule found for session ${session.sessionId}`);
     }
   } catch (err) {
@@ -95,6 +97,7 @@ async function handleSchedule(timeStr: string, prompt?: string): Promise<void> {
     }
 
     console.log(`Session will resume ${parsed.humanLabel}`);
+    // lgtm[js/clear-text-logging] args contain --resume <uuid> — non-sensitive operational status shown to the CLI user
     console.log(`  Run command: claude ${args.join(' ')}`);
     console.log(`  Working dir: ${session.cwd}`);
     if (prompt) {

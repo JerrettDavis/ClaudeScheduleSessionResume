@@ -1,13 +1,19 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { execSync } from 'child_process';
 import * as fs from 'fs';
+import * as os from 'os';
 import * as path from 'path';
 
 const PLUGIN_ROOT = path.resolve(__dirname, '..', '..');
 const CLI_PATH = path.join(PLUGIN_ROOT, 'bin', 'resume-at-cli.js');
 
+// Track temp dirs so afterEach can clean them up
+const tempDirs: string[] = [];
+
 function setupFakeHome(): string {
-  const fakeHome = process.env.HOME || '/tmp/fakehome';
+  // Use mkdtempSync for a unique, unpredictable temp directory (avoids TOCTOU on predictable paths)
+  const fakeHome = fs.mkdtempSync(path.join(os.tmpdir(), 'claude-e2e-'));
+  tempDirs.push(fakeHome);
 
   // Create fake Claude project directory
   const fakeCwd = '/plugin';
@@ -23,7 +29,8 @@ function setupFakeHome(): string {
     permissionMode: 'default',
     sessionId,
   });
-  fs.writeFileSync(jsonlPath, firstLine + '\n', 'utf-8');
+  // Write to an already-exclusively-created path (no predictable race window)
+  fs.writeFileSync(jsonlPath, firstLine + '\n', { encoding: 'utf-8', flag: 'wx' });
 
   return fakeHome;
 }
@@ -55,10 +62,14 @@ describe('E2E: resume-at CLI', () => {
   });
 
   afterEach(() => {
-    // Clean up schedule-resume directory
-    const scheduleDir = path.join(fakeHome, '.claude', 'schedule-resume');
-    if (fs.existsSync(scheduleDir)) {
-      fs.rmSync(scheduleDir, { recursive: true, force: true });
+    // Clean up all temp dirs created by setupFakeHome
+    while (tempDirs.length > 0) {
+      const dir = tempDirs.pop()!;
+      try {
+        fs.rmSync(dir, { recursive: true, force: true });
+      } catch {
+        // Best-effort cleanup
+      }
     }
   });
 
@@ -123,8 +134,8 @@ describe('E2E: resume-at CLI', () => {
         createdAt: new Date().toISOString(),
       };
 
-      fs.writeFileSync(path.join(pendingDir, 'session-aaa.json'), JSON.stringify(schedule1));
-      fs.writeFileSync(path.join(pendingDir, 'session-bbb.json'), JSON.stringify(schedule2));
+      fs.writeFileSync(path.join(pendingDir, 'session-aaa.json'), JSON.stringify(schedule1), { flag: 'wx' });
+      fs.writeFileSync(path.join(pendingDir, 'session-bbb.json'), JSON.stringify(schedule2), { flag: 'wx' });
 
       const result = runCli('list');
       expect(result.stdout).toContain('session-aaa');
