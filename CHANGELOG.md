@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/compare/v1.0.1...v1.0.2) (2026-07-14)
+
+
+### Bug Fixes
+
+* **deps:** pin typescript to ^6.0.3 (typescript-eslint peer compatibility) ([#19](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/issues/19)) ([03a1913](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/commit/03a191364c389615aa7c39f77436ff882d862a63))
+
 ## [1.0.1](https://github.com/JerrettDavis/ClaudeScheduleSessionResume/compare/v1.0.0...v1.0.1) (2026-06-23)
 
 
