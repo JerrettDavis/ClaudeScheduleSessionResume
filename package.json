@@ -40,13 +40,13 @@
     "@semantic-release/changelog": "^7.0.0",
     "@semantic-release/exec": "^7.1.0",
     "@semantic-release/git": "^11.0.1",
-    "@types/node": "^26.4.1",
-    "@typescript-eslint/eslint-plugin": "^8.69.0",
+    "@types/node": "^26.6.2",
+    "@typescript-eslint/eslint-plugin": "^8.70.0",
     "@typescript-eslint/parser": "^8.61.1",
-    "eslint": "^10.10.0",
+    "eslint": "^10.11.0",
     "semantic-release": "^25.0.9",
     "typescript": "^6.0.3",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.1"
   },
   "files": [
     "bin/",
