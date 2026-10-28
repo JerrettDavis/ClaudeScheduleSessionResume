@@ -36,7 +36,6 @@ updates:
     cooldown:
       default-days: 2
     ignore:
-      - dependency-name: "undici"
       - dependency-name: "typescript"
         update-types: ["version-update:semver-major"]
     groups:
